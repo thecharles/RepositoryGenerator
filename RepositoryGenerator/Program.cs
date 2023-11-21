@@ -37,20 +37,28 @@ Webhooks
 
                 string repositoryInterfacesPath = projeto.RepositoryInterfaceFolder;
                 string repositoryPath = projeto.RepositoryFolder;
-                string[] entidades = entidadesParaGerar.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] tabelas = entidadesParaGerar.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 int total = 0;
                 bool arquivoCriado;
 
-                foreach (var item in entidades)
+                foreach (var item in tabelas)
                 {
-                    string entityName = item;
+                    string tableName = item;
+                    string entityName = ConvertTableNameToEntityName(tableName);
 
-                    string iRepositoryInterfaceContent = GetTemplate(projeto.TemplateInterface, entityName);
-                    string arquivoIRepositoryPath = GetFilePath(repositoryInterfacesPath, entityName + "Repository.cs");
+                    if(tableName.IndexOf(",") != -1)
+                    {
+                        string[] partes = tableName.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                        tableName = partes[0];
+                        entityName = partes[1];
+                    }
+
+                    string iRepositoryInterfaceContent = GetTemplate(projeto.TemplateInterface, tableName, entityName);
+                    string arquivoIRepositoryPath = GetFilePath(repositoryInterfacesPath, "I" + tableName + "Repository.cs");
                     arquivoCriado = CriarArquivo(arquivoIRepositoryPath, iRepositoryInterfaceContent);
 
-                    string repositoryContent = GetTemplate(projeto.TemplateRepository, entityName);
-                    string arquivoRepositoryPath = GetFilePath(repositoryPath, "I" + entityName + "Repository.cs");
+                    string repositoryContent = GetTemplate(projeto.TemplateRepository, tableName, entityName);
+                    string arquivoRepositoryPath = GetFilePath(repositoryPath, tableName + "Repository.cs");
                     arquivoCriado = CriarArquivo(arquivoRepositoryPath, repositoryContent);
 
                     if (arquivoCriado)
@@ -98,10 +106,20 @@ Webhooks
             return false;
         }
 
-        static string GetTemplate(string template, string entityName)
+        static string GetTemplate(string template, string tableName, string entityName)
         {
             template = template.Replace("{entityname}", entityName);
+            template = template.Replace("{tablename}", tableName);
             return template;
+        }
+
+        static string ConvertTableNameToEntityName(string tableName)
+        {
+            if(tableName.ToLower().EndsWith("s"))
+            {
+                tableName = tableName.Substring(0, tableName.Length - 1);
+            }
+            return tableName;
         }
 
         static ProjetoDTO CriarProjetoStandOnline()
@@ -128,7 +146,7 @@ using System.Threading.Tasks;
 
 namespace StandOnline.Domain.Interfaces.Repositories
 {
-    public interface I{entityname}Repository : IGenericRepository<{entityname}>
+    public interface I{tablename}Repository : IGenericRepository<{entityname}>
     {
 
     }
@@ -149,9 +167,9 @@ using System.Threading.Tasks;
 
 namespace StandOnline.Infrastructure.Impl.Data.Repositories
 {
-    internal class {entityname}Repository : GenericRepository<{entityname}>, I{entityname}Repository
+    internal class {tablename}Repository : GenericRepository<{entityname}>, I{tablename}Repository
     {
-        public {entityname}Repository(StandonlineContext context, IConfiguration configuration) : base(context, configuration)
+        public {tablename}Repository(StandonlineContext context, IConfiguration configuration) : base(context, configuration)
         {
         }
     }
