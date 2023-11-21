@@ -6,8 +6,8 @@
         {
             try
             {
-                string repositoryInterfacesPath = @"C:\dados\git_ivera\AceleraTurboAPI\AceleraTurbo\StandOnline.Domain\Interfaces\Repositories";
-                string repositoryPath = @"C:\dados\git_ivera\AceleraTurboAPI\AceleraTurbo\StandOnline.Infrastructure\Impl\Data\Repositories";
+                ProjetoDTO projeto = CriarProjetoAceleraDB();
+
                 string entidadesParaGerar = @"
 Aquecimento
 AquecimentoDia
@@ -33,6 +33,10 @@ UsuariosContaSistemas
 Webhooks
 ";
 
+                #region . Execution .
+
+                string repositoryInterfacesPath = projeto.RepositoryInterfaceFolder;
+                string repositoryPath = projeto.RepositoryFolder;
                 string[] entidades = entidadesParaGerar.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 int total = 0;
                 bool arquivoCriado;
@@ -40,12 +44,12 @@ Webhooks
                 foreach (var item in entidades)
                 {
                     string entityName = item;
-                    
-                    string iRepositoryInterfaceContent = GetRepositoryInterfaceTemplate(entityName);
+
+                    string iRepositoryInterfaceContent = GetTemplate(projeto.TemplateInterface, entityName);
                     string arquivoIRepositoryPath = GetFilePath(repositoryInterfacesPath, entityName + "Repository.cs");
                     arquivoCriado = CriarArquivo(arquivoIRepositoryPath, iRepositoryInterfaceContent);
 
-                    string repositoryContent = GetRepositoryTemplate(entityName);
+                    string repositoryContent = GetTemplate(projeto.TemplateRepository, entityName);
                     string arquivoRepositoryPath = GetFilePath(repositoryPath, "I" + entityName + "Repository.cs");
                     arquivoCriado = CriarArquivo(arquivoRepositoryPath, repositoryContent);
 
@@ -57,6 +61,8 @@ Webhooks
 
                 Console.WriteLine();
                 Console.WriteLine("Total gerado: " + total);
+
+                #endregion
             }
             catch (Exception ex)
             {
@@ -80,7 +86,7 @@ Webhooks
 
         static bool CriarArquivo(string path, string content)
         {
-            if(!System.IO.File.Exists(path))
+            if (!System.IO.File.Exists(path))
             {
                 using (StreamWriter sw = File.CreateText(path))
                 {
@@ -92,9 +98,26 @@ Webhooks
             return false;
         }
 
-        static string GetRepositoryInterfaceTemplate(string entityName)
+        static string GetTemplate(string template, string entityName)
         {
-            return $@"
+            template = template.Replace("{entityname}", entityName);
+            return template;
+        }
+
+        static ProjetoDTO CriarProjetoStandOnline()
+        {
+            return new ProjetoDTO();
+        }
+
+        static ProjetoDTO CriarProjetoAceleraDB()
+        {
+            return new ProjetoDTO()
+            {
+                RepositoryFolder = @"C:\dados\git_ivera\AceleraTurboAPI\AceleraTurbo\StandOnline.Infrastructure\Impl\Data\Repositories",
+
+                RepositoryInterfaceFolder = @"C:\dados\git_ivera\AceleraTurboAPI\AceleraTurbo\StandOnline.Domain\Interfaces\Repositories",
+
+                TemplateInterface = @"
 
 using StandOnline.Domain.Entities;
 using System;
@@ -104,21 +127,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace StandOnline.Domain.Interfaces.Repositories
-{{
-    public interface I{entityName}Repository : IGenericRepository<{entityName}>
-    {{
+{
+    public interface I{entityname}Repository : IGenericRepository<{entityname}>
+    {
 
-    }}
-}}
+    }
+}
 
-
-";
-        }
-
-        static string GetRepositoryTemplate(string entityName)
-        {
-            return $@"
-
+"
+                                ,
+                TemplateRepository = @"
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using StandOnline.Domain.Entities;
 using StandOnline.Domain.Interfaces.Repositories;
@@ -129,17 +148,19 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace StandOnline.Infrastructure.Impl.Data.Repositories
-{{
-    internal class {entityName}Repository : GenericRepository<{entityName}>, I{entityName}Repository
-    {{
-        public {entityName}Repository(StandonlineContext context, IConfiguration configuration) : base(context, configuration)
-        {{
-        }}
-    }}
-}}
-
-
-";
+{
+    internal class {entityname}Repository : GenericRepository<{entityname}>, I{entityname}Repository
+    {
+        public {entityname}Repository(StandonlineContext context, IConfiguration configuration) : base(context, configuration)
+        {
         }
+    }
+}
+
+"
+            };
+        }
+
+
     }
 }
