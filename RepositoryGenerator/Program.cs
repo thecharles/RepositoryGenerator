@@ -15,28 +15,7 @@ WHERE table_type = 'BASE TABLE';
                  */
 
                 string entidadesParaGerar = @"
-Aquecimento
-AquecimentoDia
-AquecimentoDialogos
-Arquivos
-Bases
-Bots
-BotsBases
-BotsIntents
-BotsIntentsComandos
-BotsTemplates
-BotsTemplatesComandos
-Comandos
-ContaSistemas
-Contatos
-ContatosBotsTemplates
-ContatosMensagens
-ContatosMensagensNaoProcessadas
-LogsAtividades
-PoolNumeros
-Pools
-UsuariosContaSistemas
-Webhooks
+ProvidersCrms
 ";
 
                 #region . Execution .
@@ -60,11 +39,11 @@ Webhooks
                     }
 
                     string iRepositoryInterfaceContent = GetTemplate(projeto.TemplateInterface, tableName, entityName);
-                    string arquivoIRepositoryPath = GetFilePath(repositoryInterfacesPath, "I" + tableName + "Repository.cs");
+                    string arquivoIRepositoryPath = GetFilePath(repositoryInterfacesPath, "I" + entityName + "Repository.cs");
                     arquivoCriado = CriarArquivo(arquivoIRepositoryPath, iRepositoryInterfaceContent);
 
                     string repositoryContent = GetTemplate(projeto.TemplateRepository, tableName, entityName);
-                    string arquivoRepositoryPath = GetFilePath(repositoryPath, tableName + "Repository.cs");
+                    string arquivoRepositoryPath = GetFilePath(repositoryPath, entityName + "Repository.cs");
                     arquivoCriado = CriarArquivo(arquivoRepositoryPath, repositoryContent);
 
                     if (arquivoCriado)
@@ -143,7 +122,7 @@ using System.Threading.Tasks;
 
 namespace StandOnline.Domain.Interfaces.Repositories
 {
-    public interface I{tablename}Repository : IGenericRepository<{entityname}>
+    public interface I{entityname}Repository : IGenericRepository<{entityname}>
     {
 
     }
@@ -164,9 +143,9 @@ using System.Threading.Tasks;
 
 namespace StandOnline.Infrastructure.Impl.Data.Repositories
 {
-    internal class {tablename}Repository : GenericRepository<{entityname}>, I{tablename}Repository
+    internal class {entityname}Repository : GenericRepository<{entityname}>, I{entityname}Repository
     {
-        public {tablename}Repository(StandonlineContext context, IConfiguration configuration) : base(context, configuration)
+        public {entityname}Repository(StandonlineContext context, IConfiguration configuration) : base(context, configuration)
         {
         }
     }
