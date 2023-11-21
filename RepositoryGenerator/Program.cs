@@ -8,6 +8,12 @@
             {
                 ProjetoDTO projeto = CriarProjetoAceleraDB();
 
+                /*
+SELECT table_name 
+FROM information_schema.tables
+WHERE table_type = 'BASE TABLE';
+                 */
+
                 string entidadesParaGerar = @"
 Aquecimento
 AquecimentoDia
