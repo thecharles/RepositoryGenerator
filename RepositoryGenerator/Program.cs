@@ -79,14 +79,6 @@ Webhooks
             Console.ReadKey();
         }
 
-        static void ExplodirErroSeArquivoNaoExistir(string path)
-        {
-            if (!System.IO.File.Exists(path))
-            {
-                throw new Exception($"O arquivo ({path}) não existe");
-            }
-        }
-
         static string GetFilePath(string path, string fileName)
         {
             return Path.Combine(path, fileName);
@@ -100,7 +92,6 @@ Webhooks
                 {
                     sw.WriteLine(content);
                 }
-                Console.WriteLine($"Arquivo ({path}) criado");
                 return true;
             }
             return false;
