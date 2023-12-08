@@ -6,7 +6,8 @@
         {
             try
             {
-                ProjetoDTO projeto = CriarProjetoAceleraDB();
+                //ProjetoDTO projeto = CriarProjetoAceleraDB();
+                ProjetoDTO projeto = CriarProjetoStandOnline();
 
                 /*
 SELECT table_name 
@@ -102,7 +103,43 @@ CamposValores
 
         static ProjetoDTO CriarProjetoStandOnline()
         {
-            return new ProjetoDTO();
+            return new ProjetoDTO()
+            {
+                RepositoryFolder = @"C:\dados\git_infoimob\StandOnline-Backend\StandOnline\StandOnline.Infrastructure\Impl\Data\Repositories",
+
+                RepositoryInterfaceFolder = @"C:\dados\git_infoimob\StandOnline-Backend\StandOnline\StandOnline.Domain\Interfaces\Repositories",
+
+                TemplateInterface = @"
+
+using StandOnline.Domain.Entities;
+
+namespace StandOnline.Domain.Interfaces.Repositories
+{
+    public interface I{entityname}Repository : IGenericRepository<{entityname}>
+    {
+
+    }
+}
+
+"
+                                ,
+                TemplateRepository = @"
+using Microsoft.Extensions.Configuration;
+using StandOnline.Domain.Entities;
+using StandOnline.Domain.Interfaces.Repositories;
+
+namespace StandOnline.Infrastructure.Impl.Data.Repositories
+{
+    internal class {entityname}Repository : GenericRepository<{entityname}>, I{entityname}Repository
+    {
+        public {entityname}Repository(StandonlineContext context, IConfiguration configuration) : base(context, configuration)
+        {
+        }
+    }
+}
+
+"
+            };
         }
 
         static ProjetoDTO CriarProjetoAceleraDB()
