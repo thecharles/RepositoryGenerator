@@ -15,7 +15,9 @@ WHERE table_type = 'BASE TABLE';
                  */
 
                 string entidadesParaGerar = @"
-ProvidersCrms
+Campos
+CamposListas
+CamposValores
 ";
 
                 #region . Execution .
