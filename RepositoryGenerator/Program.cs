@@ -16,9 +16,9 @@ WHERE table_type = 'BASE TABLE';
                  */
 
                 string entidadesParaGerar = @"
-Campos
-CamposListas
-CamposValores
+Lancamentos
+Mensagens
+Prompts
 ";
 
                 #region . Execution .
